@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-
-import '../../../../common/utils/app_colors.dart';
+import 'package:what_app/common/extensions/custom_theme_extension.dart';
 
 class PrivacyPolicyWidget extends StatelessWidget {
   const PrivacyPolicyWidget({Key? key}) : super(key: key);
@@ -11,25 +10,30 @@ class PrivacyPolicyWidget extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
       child: RichText(
         textAlign: TextAlign.center,
-        text: const TextSpan(
+        text: TextSpan(
           text: 'Read our ',
           style: TextStyle(
-            color: AppColors.greyDark,
+            color: context.color.greyColor,
             height: 1.5,
           ),
           children: [
             TextSpan(
               text: 'Privacy Policy. ',
               style: TextStyle(
-                color: AppColors.blueDark,
+                color: context.color.blueColor,
               ),
             ),
             TextSpan(
-                text: 'Tap "Agree and countinue" to accept the '),
+              text: 'Tap "Agree and Continue" to accept the ',
+              style: TextStyle(
+                color: context.color.greyColor,
+                height: 1.5,
+              ),
+            ),
             TextSpan(
               text: 'Terms of Services.',
               style: TextStyle(
-                color: AppColors.blueDark,
+                color: context.color.blueColor,
               ),
             ),
           ],
