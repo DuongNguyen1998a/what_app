@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../extensions/custom_theme_extension.dart';
 import '../utils/app_colors.dart';
@@ -17,7 +18,30 @@ ThemeData darkTheme() {
         foregroundColor: AppColors.backgroundDark,
         splashFactory: NoSplash.splashFactory,
         elevation: 0,
-        shadowColor: Colors.transparent,      ),
+        shadowColor: Colors.transparent,
+      ),
+    ),
+    bottomSheetTheme: const BottomSheetThemeData(
+      backgroundColor: AppColors.greyBackground,
+      modalBackgroundColor: AppColors.greyBackground,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20),),
+      ),
+    ),
+    appBarTheme: const AppBarTheme(
+      backgroundColor: AppColors.greyBackground,
+      titleTextStyle: TextStyle(
+        fontSize: 18,
+        fontWeight: FontWeight.w600,
+        color: AppColors.greyDark,
+      ),
+      systemOverlayStyle: SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.light,
+      ),
+      iconTheme: IconThemeData(
+        color: AppColors.greyDark,
+      ),
     ),
   );
 }
