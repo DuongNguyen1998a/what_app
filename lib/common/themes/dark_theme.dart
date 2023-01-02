@@ -43,5 +43,11 @@ ThemeData darkTheme() {
         color: AppColors.greyDark,
       ),
     ),
+    dialogBackgroundColor: AppColors.greyBackground,
+    dialogTheme: DialogTheme(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
+    ),
   );
 }

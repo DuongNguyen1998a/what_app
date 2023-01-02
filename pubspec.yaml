@@ -19,6 +19,11 @@ dependencies:
   flutter_bloc: ^8.1.1
   equatable: ^2.0.5
   dio: ^4.0.6
+  country_picker: ^2.0.19
+  firebase_core: ^2.4.1
+  firebase_auth: ^4.2.4
+  flutter_riverpod: ^2.1.3
+  go_router: ^6.0.0
 
 dev_dependencies:
   flutter_test:

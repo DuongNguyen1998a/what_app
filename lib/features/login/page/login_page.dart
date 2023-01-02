@@ -1,21 +1,94 @@
+import 'package:country_picker/country_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:what_app/common/extensions/custom_theme_extension.dart';
-import 'package:what_app/common/utils/app_colors.dart';
 
+import '../../../common/helpers/show_alert_dialog.dart';
 import '../../../common/shared_widgets/custom_elevated_button_widget.dart';
 import '../../../common/shared_widgets/custom_icon_button_widget.dart';
 import '../../../common/shared_widgets/custom_textfield_widget.dart';
+import '../../../common/utils/app_colors.dart';
 
-class LoginPage extends StatelessWidget {
+class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
 
   @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+
+  TextEditingController countryNameController = TextEditingController(text: 'Vietmam');
+  TextEditingController countryCodeController = TextEditingController(text: '84');
+  TextEditingController phoneNumberController = TextEditingController();
+
+  @override
+  void dispose() {
+    countryNameController.dispose();
+    countryCodeController.dispose();
+    phoneNumberController.dispose();
+    super.dispose();
+  }
+
+  showCountryCodePicker() {
+    showCountryPicker(
+      context: context,
+      showPhoneCode: true,
+      favorite: ['VN'],
+      countryListTheme: CountryListThemeData(
+        bottomSheetHeight: 600,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        flagSize: 22,
+        borderRadius: BorderRadius.circular(20),
+        textStyle: TextStyle(color: context.color.greyColor!),
+        inputDecoration: InputDecoration(
+          labelStyle: TextStyle(color: context.color.greyColor),
+          prefixIcon: const Icon(
+            Icons.language,
+            color: AppColors.greenDark,
+          ),
+          hintText: 'Search country code or name',
+          enabledBorder: UnderlineInputBorder(
+            borderSide: BorderSide(color: context.color.greyColor!.withOpacity(0.2)),
+          ),
+          focusedBorder: const UnderlineInputBorder(
+            borderSide: BorderSide(color: AppColors.greenDark, width: 2),
+          ),
+        ),
+      ),
+      onSelect: (code) {
+        countryNameController.text = code.name;
+        countryCodeController.text = code.phoneCode;
+      },
+    );
+  }
+
+  sendVerificationCodeToPhone() {
+    final phoneNumber = phoneNumberController.text;
+    final countryCode = countryCodeController.text;
+    final countryName = countryNameController.text;
+
+    // check phone number before requesting login
+    if (phoneNumber.isEmpty) {
+      return showAlertDialog(
+        context: context,
+        message: 'Please enter your phone number',
+      );
+    } else if (phoneNumber.length < 9) {
+      return showAlertDialog(
+        context: context,
+        message: 'The phone number you entered is too short for the country: $countryName.\n\n'
+            'Include your area code if you haven\'t',
+      );
+    } else if (phoneNumber.length > 10) {
+      return showAlertDialog(
+        context: context,
+        message: 'The phone number you entered is too long for the country: $countryName.',
+      );
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-
-    TextEditingController countryNameController = TextEditingController();
-    TextEditingController countryCodeController = TextEditingController();
-    TextEditingController phoneNumberController = TextEditingController();
-
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -61,7 +134,9 @@ class LoginPage extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 50),
               child: CustomTextFieldWidget(
-                onTap: () {},
+                onTap: () {
+                  showCountryCodePicker();
+                },
                 controller: countryNameController,
                 readOnly: true,
                 suffixIcon: const Icon(
@@ -78,7 +153,9 @@ class LoginPage extends StatelessWidget {
                   SizedBox(
                     width: 70,
                     child: CustomTextFieldWidget(
-                      onTap: () {},
+                      onTap: () {
+                        showCountryCodePicker();
+                      },
                       controller: countryCodeController,
                       prefixText: ' +',
                       readOnly: true,
@@ -107,7 +184,9 @@ class LoginPage extends StatelessWidget {
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: CustomElevatedButtonWidget(
-        onPressed: () {},
+        onPressed: () {
+          sendVerificationCodeToPhone();
+        },
         text: 'NEXT',
         width: 90,
       ),
