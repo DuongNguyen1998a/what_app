@@ -12,6 +12,7 @@ class AppRoutes {
   static const String verification = '/verification';
 
   static final router = GoRouter(
+    initialLocation: login,
     routes: [
       GoRoute(
         path: login,
@@ -23,11 +24,14 @@ class AppRoutes {
       ),
       GoRoute(
         path: verification,
-        builder: (context, state) =>
-        const VerificationPage(phoneNumber: '', verificationId: ''),
+        builder: (context, state) {
+          final params = state.extra as Map<String, dynamic>;
+          return VerificationPage(
+            phoneNumber: params['phone'],
+            verificationId: params['verificationId'],
+          );
+        },
       ),
     ],
   );
 }
-
-

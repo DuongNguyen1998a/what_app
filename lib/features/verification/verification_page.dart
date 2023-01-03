@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:what_app/common/extensions/custom_theme_extension.dart';
+import 'package:what_app/features/verification/controllers/verification_controller.dart';
 
 import '../../common/shared_widgets/custom_icon_button_widget.dart';
 import '../../common/shared_widgets/custom_textfield_widget.dart';
 
-class VerificationPage extends StatefulWidget {
+class VerificationPage extends ConsumerWidget {
   final String verificationId;
   final String phoneNumber;
 
@@ -15,12 +17,7 @@ class VerificationPage extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<VerificationPage> createState() => _VerificationPageState();
-}
-
-class _VerificationPageState extends State<VerificationPage> {
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -50,7 +47,7 @@ class _VerificationPageState extends State<VerificationPage> {
                   style: TextStyle(color: context.color.greyColor, height: 1.5),
                   children: [
                     TextSpan(
-                      text: "You've tried to register ${widget.phoneNumber}. wait"
+                      text: "You've tried to register $phoneNumber. wait"
                           "before requesting an SMS or call with your code.  ",
                     ),
                     TextSpan(
@@ -69,7 +66,16 @@ class _VerificationPageState extends State<VerificationPage> {
                 fontSize: 30,
                 autoFocus: true,
                 keyBoardType: TextInputType.number,
-                onChanged: (value) {},
+                onChanged: (value) {
+                  if (value.length == 6) {
+                    ref.read(verificationController).verifyCode(
+                          context: context,
+                          verificationId: verificationId,
+                          smsCode: value,
+                          mounted: true,
+                        );
+                  }
+                },
               ),
             ),
             const SizedBox(height: 20),

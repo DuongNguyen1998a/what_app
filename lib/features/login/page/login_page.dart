@@ -1,24 +1,29 @@
 import 'package:country_picker/country_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:what_app/common/extensions/custom_theme_extension.dart';
+import 'package:what_app/features/login/controllers/login_controller.dart';
 
 import '../../../common/helpers/show_alert_dialog.dart';
 import '../../../common/shared_widgets/custom_elevated_button_widget.dart';
 import '../../../common/shared_widgets/custom_icon_button_widget.dart';
 import '../../../common/shared_widgets/custom_textfield_widget.dart';
 import '../../../common/utils/app_colors.dart';
+import '../widgets/login_footer.dart';
+import '../widgets/login_header.dart';
 
-class LoginPage extends StatefulWidget {
+class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  ConsumerState<LoginPage> createState() => _LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
-
-  TextEditingController countryNameController = TextEditingController(text: 'Vietmam');
-  TextEditingController countryCodeController = TextEditingController(text: '84');
+class _LoginPageState extends ConsumerState<LoginPage> {
+  TextEditingController countryNameController =
+      TextEditingController(text: 'Vietnam');
+  TextEditingController countryCodeController =
+      TextEditingController(text: '84');
   TextEditingController phoneNumberController = TextEditingController();
 
   @override
@@ -48,7 +53,8 @@ class _LoginPageState extends State<LoginPage> {
           ),
           hintText: 'Search country code or name',
           enabledBorder: UnderlineInputBorder(
-            borderSide: BorderSide(color: context.color.greyColor!.withOpacity(0.2)),
+            borderSide:
+                BorderSide(color: context.color.greyColor!.withOpacity(0.2)),
           ),
           focusedBorder: const UnderlineInputBorder(
             borderSide: BorderSide(color: AppColors.greenDark, width: 2),
@@ -76,15 +82,22 @@ class _LoginPageState extends State<LoginPage> {
     } else if (phoneNumber.length < 9) {
       return showAlertDialog(
         context: context,
-        message: 'The phone number you entered is too short for the country: $countryName.\n\n'
+        message:
+            'The phone number you entered is too short for the country: $countryName.\n\n'
             'Include your area code if you haven\'t',
       );
     } else if (phoneNumber.length > 10) {
       return showAlertDialog(
         context: context,
-        message: 'The phone number you entered is too long for the country: $countryName.',
+        message:
+            'The phone number you entered is too long for the country: $countryName.',
       );
     }
+
+    ref.read(loginController).sendVerificationCode(
+          context: context,
+          phoneNumber: '+$countryCode$phoneNumber',
+        );
   }
 
   @override
@@ -109,27 +122,7 @@ class _LoginPageState extends State<LoginPage> {
         child: Column(
           children: [
             const SizedBox(height: 10),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: RichText(
-                textAlign: TextAlign.center,
-                text: TextSpan(
-                  style: TextStyle(
-                    color: context.color.greyColor,
-                    height: 1.3,
-                  ),
-                  children: [
-                    const TextSpan(
-                      text: 'WhatsApp will need to verify your phone number. ',
-                    ),
-                    TextSpan(
-                      text: "What's my number?",
-                      style: TextStyle(color: context.color.blueColor),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+            const LoginHeader(),
             const SizedBox(height: 20),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 50),
@@ -175,10 +168,7 @@ class _LoginPageState extends State<LoginPage> {
               ),
             ),
             const SizedBox(height: 20),
-            Text(
-              'Carrier charges may apply',
-              style: TextStyle(color: context.color.greyColor),
-            ),
+            const LoginFooter(),
           ],
         ),
       ),
