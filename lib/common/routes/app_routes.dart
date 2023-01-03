@@ -12,7 +12,7 @@ class AppRoutes {
   static const String verification = '/verification';
 
   static final router = GoRouter(
-    initialLocation: login,
+    initialLocation: userInfo,
     routes: [
       GoRoute(
         path: login,
