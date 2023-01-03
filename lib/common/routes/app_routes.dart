@@ -1,4 +1,5 @@
 import 'package:go_router/go_router.dart';
+import 'package:what_app/features/home/home_page.dart';
 
 import '../../features/login/page/login_page.dart';
 import '../../features/user_info/user_info_page.dart';
@@ -10,9 +11,10 @@ class AppRoutes {
   static const String login = '/login';
   static const String userInfo = '/user-info';
   static const String verification = '/verification';
+  static const String home = '/home';
 
   static final router = GoRouter(
-    initialLocation: userInfo,
+    initialLocation: login,
     routes: [
       GoRoute(
         path: login,
@@ -31,6 +33,10 @@ class AppRoutes {
             verificationId: params['verificationId'],
           );
         },
+      ),
+      GoRoute(
+        path: home,
+        builder: (context, state) => const HomePage(),
       ),
     ],
   );

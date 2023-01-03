@@ -1,15 +1,17 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:what_app/common/extensions/custom_theme_extension.dart';
+import 'package:what_app/features/user_info/controllers/user_info_controller.dart';
 import 'package:what_app/features/user_info/widgets/image_picker_button_widget.dart';
 
 import '../../common/shared_widgets/custom_elevated_button_widget.dart';
 import '../../common/shared_widgets/custom_textfield_widget.dart';
 
-class UserInfoPage extends StatefulWidget {
+class UserInfoPage extends ConsumerStatefulWidget {
   final String? profileImageUrl;
 
   const UserInfoPage({
@@ -18,10 +20,10 @@ class UserInfoPage extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<UserInfoPage> createState() => _UserInfoPageState();
+  ConsumerState<UserInfoPage> createState() => _UserInfoPageState();
 }
 
-class _UserInfoPageState extends State<UserInfoPage> {
+class _UserInfoPageState extends ConsumerState<UserInfoPage> {
   late TextEditingController usernameController;
   File? imagePickerFromSource;
 
@@ -192,7 +194,7 @@ class _UserInfoPageState extends State<UserInfoPage> {
                     shape: BoxShape.circle,
                     color: context.color.photoIconBgColor,
                     image: widget.profileImageUrl != null &&
-                            widget.profileImageUrl!.isNotEmpty ||
+                                widget.profileImageUrl!.isNotEmpty ||
                             imagePickerFromSource != null
                         ? DecorationImage(
                             image: widget.profileImageUrl != null &&
@@ -241,7 +243,14 @@ class _UserInfoPageState extends State<UserInfoPage> {
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: CustomElevatedButtonWidget(
-        onPressed: () {},
+        onPressed: () {
+          ref.read(userInfoController).saveUser(
+                username: usernameController.text,
+                context: context,
+                mounted: mounted,
+                avatarFile: imagePickerFromSource!,
+              );
+        },
         text: 'NEXT',
         width: 90,
       ),

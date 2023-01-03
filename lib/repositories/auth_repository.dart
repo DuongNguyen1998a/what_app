@@ -1,10 +1,11 @@
-import 'dart:ui';
+import 'dart:io';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:what_app/common/helpers/show_loading_dialog.dart';
+import 'package:what_app/repositories/storage_repository.dart';
 
 import '../common/helpers/show_alert_dialog.dart';
 import '../common/routes/app_routes.dart';
@@ -70,13 +71,44 @@ class AuthRepository {
       showLoadingDialog(context: context, message: 'Loading...');
       final credential = PhoneAuthProvider.credential(
           verificationId: verificationId, smsCode: smsCode);
-      await firebaseAuth.signInWithCredential(credential);
+      await firebaseAuth.signInWithCredential(credential).then((value) {
+        debugPrint(value.toString());
+      });
       if (!mounted) return;
       context.pop();
       context.go(AppRoutes.userInfo);
     } on FirebaseAuthException catch (e) {
       showAlertDialog(context: context, message: e.message ?? '');
       context.pop();
+    }
+  }
+
+  void saveUser({
+    required String username,
+    required BuildContext context,
+    required bool mounted,
+    required ProviderRef providerRef,
+    required File avatarFile,
+  }) async {
+    try {
+      if (firebaseAuth.currentUser != null) {
+        debugPrint('Signed in');
+        await firebaseAuth.currentUser!.updateDisplayName(username);
+        providerRef
+            .read(storageProvider)
+            .uploadAvatarToStorage(
+                'uid_${firebaseAuth.currentUser!.uid}', avatarFile)
+            .then((value) {
+          firebaseAuth.currentUser!.updatePhotoURL(value);
+        });
+        if (!mounted) return;
+        context.go(AppRoutes.home);
+        debugPrint(firebaseAuth.currentUser!.toString());
+      } else {
+        debugPrint(' Not signed in');
+      }
+    } catch (e) {
+      showAlertDialog(context: context, message: e.toString());
     }
   }
 }
