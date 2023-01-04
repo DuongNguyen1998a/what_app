@@ -11,21 +11,25 @@ import '../common/helpers/show_alert_dialog.dart';
 import '../common/helpers/show_loading_dialog.dart';
 import '../common/routes/app_routes.dart';
 import 'storage_repository.dart';
+import 'package:firebase_database/firebase_database.dart';
 
 final authRepositoryProvider = Provider(
   (ref) => AuthRepository(
     firebaseAuth: FirebaseAuth.instance,
     fireStore: FirebaseFirestore.instance,
+    realtimeDatabase: FirebaseDatabase.instance,
   ),
 );
 
 class AuthRepository {
   final FirebaseAuth firebaseAuth;
   final FirebaseFirestore fireStore;
+  final FirebaseDatabase realtimeDatabase;
 
   const AuthRepository({
     required this.firebaseAuth,
     required this.fireStore,
+    required this.realtimeDatabase,
   });
 
   void sendVerificationCode({
@@ -114,13 +118,14 @@ class AuthRepository {
         providerRef
             .read(storageProvider)
             .uploadAvatarToStorage(
-                'uid_${firebaseAuth.currentUser!.uid}', avatarFile)
+                'profile_images/uid_${firebaseAuth.currentUser!.uid}',
+                avatarFile)
             .then((value) {
           firebaseAuth.currentUser!.updatePhotoURL(value);
 
           /// create model store data into firebase cloud database
           userModel = UserModel(
-            lastSeen: 0,
+            lastSeen: DateTime.now().millisecondsSinceEpoch,
             username: username,
             uid: firebaseAuth.currentUser!.uid,
             profileImageUrl: value,
@@ -136,12 +141,58 @@ class AuthRepository {
               .set(userModel.toMap());
         });
 
-
         if (!mounted) return;
         context.go(AppRoutes.home);
       }
     } catch (e) {
       showAlertDialog(context: context, message: e.toString());
     }
+  }
+
+  void updateStatusAndLastSeen() async {
+    Map<String, dynamic> onlineStatus = {
+      'active': true,
+      'lastSeen': DateTime.now().millisecondsSinceEpoch,
+    };
+    Map<String, dynamic> offlineStatus = {
+      'active': false,
+      'lastSeen': DateTime.now().millisecondsSinceEpoch,
+    };
+
+    final connectedRef = realtimeDatabase.ref('.info/connected');
+
+    /// listen on change status online, offline and status online, offline
+    connectedRef.onValue.listen((event) async {
+      final isConnected = event.snapshot.value as bool? ?? false;
+      if (isConnected) {
+        debugPrint(isConnected.toString());
+        await realtimeDatabase
+            .ref()
+            .child(firebaseAuth.currentUser!.uid)
+            .update(onlineStatus);
+        await fireStore
+            .collection('users')
+            .doc(firebaseAuth.currentUser!.uid)
+            .update(onlineStatus);
+      } else {
+        debugPrint(isConnected.toString());
+        final userRef =
+            fireStore.collection('users').doc(firebaseAuth.currentUser!.uid);
+        userRef.snapshots().listen((event) {
+          if (isConnected) {
+            event.data()!.update('active', (value) => false);
+            event
+                .data()!
+                .update('lastSeen', (value) => offlineStatus['lastSeen']);
+          }
+        });
+
+        await realtimeDatabase
+            .ref()
+            .child(firebaseAuth.currentUser!.uid)
+            .onDisconnect()
+            .update(offlineStatus);
+      }
+    });
   }
 }
