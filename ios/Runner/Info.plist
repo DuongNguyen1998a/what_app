@@ -68,5 +68,7 @@
         <string>NSCameraUsageDescription</string>
         <key>NSMicrophoneUsageDescription</key>
         <string>NSMicrophoneUsageDescription</string>
+        <key>NSContactsUsageDescription</key>
+        <string>Reason we need access to the contact list</string>
 	</dict>
 </plist>

@@ -39,14 +39,28 @@ ThemeData lightTheme() {
         statusBarIconBrightness: Brightness.dark,
       ),
       iconTheme: IconThemeData(
-        color: AppColors.greyLight,
+        color: Colors.white,
       ),
+    ),
+    tabBarTheme: const TabBarTheme(
+      indicator: UnderlineTabIndicator(
+        borderSide: BorderSide(
+          color: Colors.white,
+          width: 2,
+        ),
+      ),
+      unselectedLabelColor: Color(0xFFB3D9D2),
+      labelColor: Colors.white,
     ),
     dialogBackgroundColor: AppColors.backgroundLight,
     dialogTheme: DialogTheme(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
       ),
+    ),
+    floatingActionButtonTheme: const FloatingActionButtonThemeData(
+      backgroundColor: AppColors.greenDark,
+      foregroundColor: Colors.white,
     ),
   );
 }

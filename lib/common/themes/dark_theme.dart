@@ -43,11 +43,25 @@ ThemeData darkTheme() {
         color: AppColors.greyDark,
       ),
     ),
+    tabBarTheme: const TabBarTheme(
+      indicator: UnderlineTabIndicator(
+        borderSide: BorderSide(
+          color: AppColors.greenDark,
+          width: 2,
+        ),
+      ),
+      labelColor: AppColors.greenDark,
+      unselectedLabelColor: AppColors.greyDark,
+    ),
     dialogBackgroundColor: AppColors.greyBackground,
     dialogTheme: DialogTheme(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
       ),
+    ),
+    floatingActionButtonTheme: const FloatingActionButtonThemeData(
+      backgroundColor: AppColors.greenDark,
+      foregroundColor: Colors.white,
     ),
   );
 }

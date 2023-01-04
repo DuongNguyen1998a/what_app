@@ -1,26 +1,31 @@
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:what_app/common/helpers/show_loading_dialog.dart';
-import 'package:what_app/repositories/storage_repository.dart';
+import 'package:what_app/models/user_model.dart';
 
 import '../common/helpers/show_alert_dialog.dart';
+import '../common/helpers/show_loading_dialog.dart';
 import '../common/routes/app_routes.dart';
+import 'storage_repository.dart';
 
 final authRepositoryProvider = Provider(
   (ref) => AuthRepository(
     firebaseAuth: FirebaseAuth.instance,
+    fireStore: FirebaseFirestore.instance,
   ),
 );
 
 class AuthRepository {
   final FirebaseAuth firebaseAuth;
+  final FirebaseFirestore fireStore;
 
   const AuthRepository({
     required this.firebaseAuth,
+    required this.fireStore,
   });
 
   void sendVerificationCode({
@@ -91,8 +96,20 @@ class AuthRepository {
     required File avatarFile,
   }) async {
     try {
+      UserModel userModel = UserModel(
+        lastSeen: 0,
+        username: '',
+        uid: '',
+        profileImageUrl: '',
+        active: false,
+        phoneNumber: '',
+        groupId: [],
+      );
+
       if (firebaseAuth.currentUser != null) {
         debugPrint('Signed in');
+
+        /// update user information in firebase auth
         await firebaseAuth.currentUser!.updateDisplayName(username);
         providerRef
             .read(storageProvider)
@@ -100,12 +117,28 @@ class AuthRepository {
                 'uid_${firebaseAuth.currentUser!.uid}', avatarFile)
             .then((value) {
           firebaseAuth.currentUser!.updatePhotoURL(value);
+
+          /// create model store data into firebase cloud database
+          userModel = UserModel(
+            lastSeen: 0,
+            username: username,
+            uid: firebaseAuth.currentUser!.uid,
+            profileImageUrl: value,
+            active: true,
+            phoneNumber: firebaseAuth.currentUser!.phoneNumber!,
+            groupId: [],
+          );
+
+          /// store data into firebase cloud database
+          fireStore
+              .collection('users')
+              .doc(firebaseAuth.currentUser!.uid)
+              .set(userModel.toMap());
         });
+
+
         if (!mounted) return;
         context.go(AppRoutes.home);
-        debugPrint(firebaseAuth.currentUser!.toString());
-      } else {
-        debugPrint(' Not signed in');
       }
     } catch (e) {
       showAlertDialog(context: context, message: e.toString());
