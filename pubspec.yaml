@@ -28,6 +28,10 @@ dependencies:
   flutter_contacts: ^1.1.5+1
   cloud_firestore: ^4.3.1
   firebase_database: ^10.0.9
+  uuid: any
+  intl: any
+  shimmer: ^2.0.0
+  custom_clippers: ^2.0.0
 
 dev_dependencies:
   flutter_test:
